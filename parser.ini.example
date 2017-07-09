@@ -1,0 +1,8 @@
+[csv]
+# default delimiter for csv report
+delimiter="|"
+[jira]
+login="mkardakov@determine.com"
+pass=
+[git]
+input_branch_pattern="/^sprint_[-0-9]+/"
