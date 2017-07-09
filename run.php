@@ -1,6 +1,6 @@
 <?php
 
-define('ROOT', realpath(__DIR__));
+define('ROOT', __DIR__);
 require ROOT . DIRECTORY_SEPARATOR . 'Git.php';
 require ROOT . DIRECTORY_SEPARATOR . 'CsvReport.php';
 require ROOT . DIRECTORY_SEPARATOR . 'Config.php';
@@ -19,7 +19,7 @@ try {
     $strFilesSet = $git->getStrFileDiff($argv[1]);
     if (!empty($strFilesSet)) {
         $csv = new CsvReport($strFilesSet);
-        $report = $csv->setTmpStorage(__DIR__)->export();
+        $report = $csv->setTmpStorage('.')->export();
         addMessage(
             sprintf("%sNew Csv Report for JIRA generated locally at %s. (y - proceed with JIRA ticket creation,n - stop execution):",
                 PHP_EOL,
