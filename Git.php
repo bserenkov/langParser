@@ -28,7 +28,7 @@ class Git
         $diff = $this->exec(sprintf('git diff %s/%s --name-only', $alias, $remote));
         $result = [];
         $strFilesSet = array_filter($diff, function ($fileName) {
-            return strpos($fileName, '/en/str_');
+            return false !== strpos($fileName, 'en/str_');
         });
         foreach ($strFilesSet as $file) {
             $lineDiff = $this->exec(sprintf('git diff %s/%s -- %s', $alias, $remote, $file), true);
