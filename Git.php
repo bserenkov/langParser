@@ -28,7 +28,7 @@ class Git
         $diff = $this->exec(sprintf('git diff %s/%s --name-only', $alias, $remote));
         $result = [];
         $strFilesSet = array_filter($diff, function ($fileName) {
-            return false !== strpos($fileName, 'en/str_');
+            return preg_match('/en\/(?:str_|main\.inc$)/', $fileName);
         });
         foreach ($strFilesSet as $file) {
             $lineDiff = $this->exec(sprintf('git diff %s/%s -- %s', $alias, $remote, $file), true);
@@ -58,10 +58,15 @@ class Git
         return $output;
     }
 
+    /**
+     * Accepts diff of 2 file versions and parses VarName/Value
+     * @param $str
+     * @return array
+     */
     private function grepLabelsDiff($str)
     {
         $result = [];
-        preg_match_all('/^\+\s*\$[^\'"]+[\'"](?<name>[^\'"]+).*?=\s*[\'"](?<value>.*);\s*$/im', $str, $matches);
+        preg_match_all('/^\+\s*\$(?<name>[^=]+)=\s*[\'"](?<value>.*);\s*$/im', $str, $matches);
         if (isset($matches['name'], $matches['value'])) {
             $result = array_combine($matches['name'], $matches['value']);
             array_walk($result, function (&$value) {
