@@ -45,13 +45,14 @@ class CsvReport
     }
 
     /**
-     * CsvExport constructor.
+     * CsvReport constructor.
      * @param array $gitData
+     * @param null $filename
      */
-    public function __construct(array $gitData)
+    public function __construct(array $gitData, $filename = null)
     {
         $this->data = $gitData;
-        $this->filename = uniqid() . '.csv';
+        $this->filename = ($filename ? $filename: uniqid()) . '.csv';
         $this->delimiter = Config::getInstance()->csv['delimiter'];
     }
 

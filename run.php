@@ -18,16 +18,33 @@ try {
     $git = new Git();
     $strFilesSet = $git->getStrFileDiff($argv[1]);
     if (!empty($strFilesSet)) {
-        $csv = new CsvReport($strFilesSet);
+        $fileName = $git->getBranch();
+        $csv = new CsvReport($strFilesSet, $fileName);
         $report = $csv->setTmpStorage('.')->export();
-        addMessage(
-            sprintf("%sNew Csv Report for JIRA generated locally at %s. (y - proceed with JIRA ticket creation,n - stop execution):",
-                PHP_EOL,
-                $report)
+        //todo collect debug info instead of /dev/null
+        if (is_executable(Config::getInstance()->libreoffice['path']) && is_file($report)) {
+            exec(
+                sprintf('%s --invisible --convert-to xlsx %s 2>&1 >> /dev/null', Config::getInstance()->libreoffice['path'], $report),
+                $output,
+                $status
+            );
+            $reportXls = str_replace('.csv', '.xlsx', $report);
+            // if conversion was successful remove temporary csv file
+            if (is_file($reportXls)) {
+                unlink($report);
+                $report = $reportXls;
+            } else {
+                addMessage('Cannot convert report to .xlsx format. Please use .csv');
+            }
+        } else {
+            addMessage('You dont have libreoffice installed or there is a mistake at your parser.ini');
+        }
+        addMessage(sprintf("New Report for JIRA generated locally at %s. (y - proceed with JIRA ticket creation,n - stop execution):", $report)
         );
         foreach (stdin_stream() as $line) {
             $line = trim($line);
             if ($line === 'y') {
+                addMessage('Not implemented yet. doh!');
                 break;
             } elseif ($line === 'n') {
                 die('stop');
