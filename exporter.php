@@ -20,7 +20,7 @@ try {
     if (!empty($strFilesSet)) {
         $fileName = $git->getBranch();
         $csv = new CsvReport($strFilesSet, $fileName);
-        $report = $csv->setTmpStorage('.')->export();
+        $report = $csv->setTmpStorage(getcwd())->export();
         //todo collect debug info instead of /dev/null
         if (is_executable(Config::getInstance()->libreoffice['path']) && is_file($report)) {
             exec(
