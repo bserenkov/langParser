@@ -14,7 +14,10 @@ class Git
      */
     public function getBranch()
     {
-        $branch = $this->exec('git branch | grep -oP "(?<=\* ).*"');
+        static $branch;
+        if (is_null($branch)) {
+            $branch = $this->exec('git branch | grep -oP "(?<=\* ).*"');
+        }
         return isset($branch[0]) ? $branch[0] : false;
     }
 
@@ -25,13 +28,14 @@ class Git
      */
     public function getStrFileDiff($remote, $alias = 'origin')
     {
-        $diff = $this->exec(sprintf('git diff %s/%s --name-only', $alias, $remote));
+        $currentBranch = $this->getBranch();
+        $diff = $this->exec(sprintf('git diff %s/%s..%1$s/%s --name-only', $alias, $currentBranch, $remote));
         $result = [];
         $strFilesSet = array_filter($diff, function ($fileName) {
-            return preg_match('/en\/(?:str_|main\.inc$)/', $fileName);
+            return preg_match('/en\/(?:str_|main\.inc)/', $fileName);
         });
         foreach ($strFilesSet as $file) {
-            $lineDiff = $this->exec(sprintf('git diff %s/%s -- %s', $alias, $remote, $file), true);
+            $lineDiff = $this->exec(sprintf('git diff %s/%s..%1$s/%s -- %s', $alias, $currentBranch, $remote, $file), true);
             if (!empty($lineDiff)) {
                 $parse = $this->grepLabelsDiff($lineDiff);
                 if (!empty($parse)) {
